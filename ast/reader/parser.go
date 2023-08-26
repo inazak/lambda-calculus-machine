@@ -19,19 +19,23 @@ func NewParser(l *Lexer) *Parser {
 	return p
 }
 
+func (p *Parser) GetError() []string {
+	return p.errors
+}
+
 func (p *Parser) readToken() {
 	p.currToken = p.nextToken
-	p.nextToken = p.l.NextToken()
+	p.nextToken = p.l.nextToken()
 
 	if p.currToken.Type == UNKNOWN {
 		p.errors = append(p.errors, fmt.Sprintf("Lexer got unknown token:"))
-		p.errors = append(p.errors, fmt.Sprintf("  %s", p.l.GetMsg()))
+		p.errors = append(p.errors, fmt.Sprintf("  %s", p.l.GetError()))
 	}
 }
 
-func (p *Parser) AddErrorMessage(process string, expect string) {
+func (p *Parser) addErrorMessage(process string, expect string) {
 	p.errors = append(p.errors, fmt.Sprintf("Error at Parsing %s:", process))
-	p.errors = append(p.errors, fmt.Sprintf("  reading text '%s' <-", shorten(p.l.LookbackText(), 10)))
+	p.errors = append(p.errors, fmt.Sprintf("  reading text '%s' <-", shorten(p.l.lookbackText(), 10)))
 	p.errors = append(p.errors, fmt.Sprintf("  parser expect %s,", expect))
 	p.errors = append(p.errors, fmt.Sprintf("  but got %s '%s'", p.currToken.Type, p.currToken.Literal))
 }
@@ -44,111 +48,107 @@ func shorten(s string, i int) string {
 	}
 }
 
-func (p *Parser) GetError() []string {
-	return p.errors
-}
-
-func (p *Parser) IsTokenType(expect TokenType) bool {
+func (p *Parser) isTokenType(expect TokenType) bool {
 	return p.currToken.Type == expect
 }
 
-func (p *Parser) PopToken() Token {
+func (p *Parser) popToken() Token {
 	tk := p.currToken
 	p.readToken()
 	return tk
 }
 
-func (p *Parser) ConsumeToken() {
-	_ = p.PopToken()
+func (p *Parser) consumeToken() {
+	_ = p.popToken()
 }
 
 func (p *Parser) Parse() ast.Expression {
-	expr := p.ParseExpression()
+	expr := p.parseExpression()
 
-	if !p.IsTokenType(EOT) {
-		p.AddErrorMessage("Parse", "unexpected EOT")
+	if !p.isTokenType(EOT) {
+		p.addErrorMessage("Parse", "unexpected EOT")
 		return expr
 	}
 
-	p.ConsumeToken()
+	p.consumeToken()
 	return expr
 }
 
-func (p *Parser) ParseExpression() ast.Expression {
+func (p *Parser) parseExpression() ast.Expression {
 	var expr ast.Expression
 
 	switch p.currToken.Type {
 	case LAMBDA:
-		expr = p.ParseFunction()
+		expr = p.parseFunction()
 	case LPAREN:
-		expr = p.ParseApplication()
+		expr = p.parseApplication()
 	case SYMBOL:
-		expr = p.ParseSymbol()
+		expr = p.parseSymbol()
 	default:
-		p.AddErrorMessage("Expression", "one of the allowed char")
+		p.addErrorMessage("Expression", "one of the allowed char")
 	}
 	return expr
 }
 
-func (p *Parser) ParseFunction() ast.Function {
+func (p *Parser) parseFunction() ast.Function {
 	f := ast.Function{}
 
-	if !p.IsTokenType(LAMBDA) {
-		p.AddErrorMessage("Function", "lambda '^' char")
+	if !p.isTokenType(LAMBDA) {
+		p.addErrorMessage("Function", "lambda '^' char")
 		return f
 	}
-	p.ConsumeToken()
+	p.consumeToken()
 
-	tk := p.PopToken()
+	tk := p.popToken()
 	if len(tk.Literal) != 1 {
-		p.AddErrorMessage("Function", "symbol character")
+		p.addErrorMessage("Function", "symbol character")
 		return f
 	}
 
 	f.Arg = tk.Literal
 
-	if !p.IsTokenType(DOT) {
-		p.AddErrorMessage("Function", "dot '.' char")
+	if !p.isTokenType(DOT) {
+		p.addErrorMessage("Function", "dot '.' char")
 		return f
 	}
-	p.ConsumeToken()
+	p.consumeToken()
 
-	f.Body = p.ParseExpression()
+	f.Body = p.parseExpression()
 	return f
 }
 
-func (p *Parser) ParseApplication() ast.Application {
+func (p *Parser) parseApplication() ast.Application {
 	a := ast.Application{}
 
-	if !p.IsTokenType(LPAREN) {
-		p.AddErrorMessage("Application", "left paren '(' char")
+	if !p.isTokenType(LPAREN) {
+		p.addErrorMessage("Application", "left paren '(' char")
 		return a
 	}
-	p.ConsumeToken()
+	p.consumeToken()
 
-	a.Left = p.ParseExpression()
-	a.Right = p.ParseExpression()
+	a.Left = p.parseExpression()
+	a.Right = p.parseExpression()
 
-	if !p.IsTokenType(RPAREN) {
-		p.AddErrorMessage("Application", "right paren ')' char")
+	if !p.isTokenType(RPAREN) {
+		p.addErrorMessage("Application", "right paren ')' char")
 		return a
 	}
-	p.ConsumeToken()
+	p.consumeToken()
 
 	return a
 }
 
-func (p *Parser) ParseSymbol() ast.Symbol {
+func (p *Parser) parseSymbol() ast.Symbol {
 	s := ast.Symbol{}
 
-	if !p.IsTokenType(SYMBOL) {
-		p.AddErrorMessage("Symbol", "symbol character")
+	if !p.isTokenType(SYMBOL) {
+		p.addErrorMessage("Symbol", "symbol character")
 		return s
 	}
 
-	tk := p.PopToken()
+	tk := p.popToken()
 	if len(tk.Literal) != 1 {
-		p.AddErrorMessage("Symbol", "symbol character")
+		p.addErrorMessage("Symbol", "symbol character")
 		return s
 	}
 	s.Name = tk.Literal

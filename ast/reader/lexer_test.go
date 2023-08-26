@@ -30,7 +30,7 @@ func TestNextToken1(t *testing.T) {
 	}
 
 	for i, e := range expected {
-		tk := l.NextToken()
+		tk := l.nextToken()
 		if tk.Type != e.Type {
 			t.Fatalf("No.%v expected type=%q, got=%q", i, e.Type, tk.Type)
 		}

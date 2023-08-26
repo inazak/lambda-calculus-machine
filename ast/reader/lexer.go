@@ -15,16 +15,16 @@ func NewLexer(text string) *Lexer {
 	return l
 }
 
-func (l *Lexer) LookbackText() string {
+func (l *Lexer) GetError() string {
+	return l.msg
+}
+
+func (l *Lexer) lookbackText() string {
 	if l.currPosition < 2 {
 		return ""
 	} else {
 		return string(l.text[:l.currPosition-2])
 	}
-}
-
-func (l *Lexer) GetMsg() string {
-	return l.msg
 }
 
 func (l *Lexer) read() {
@@ -37,7 +37,7 @@ func (l *Lexer) read() {
 	l.nextPosition += 1
 }
 
-func (l *Lexer) NextToken() Token {
+func (l *Lexer) nextToken() Token {
 	var tk Token
 	l.skipSpace()
 
