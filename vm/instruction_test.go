@@ -2,21 +2,55 @@ package vm
 
 import (
 	"github.com/inazak/lambda-calculus-machine/ast"
+	"github.com/inazak/lambda-calculus-machine/ast/reader"
 	"testing"
 )
 
+func parseText(text string) ast.Expression {
+	l := reader.NewLexer(text)
+	p := reader.NewParser(l)
+	return p.Parse()
+}
+
 func TestCompile1(t *testing.T) {
 
-	expr := ast.Symbol{Name: "x"}
-	expect := []Instruction{Fetch{Name: "x"}}
+	text := "x"
+	expect := []Instruction{
+		Fetch{Name: "x"},
+	}
 
-	code := Compile(expr)
+	code := Compile(parseText(text))
 
 	for i, inst := range code {
 		got := inst.InstructionString()
-		want := expect[i].InstructionString()
-		if got != want {
-			t.Errorf("expect=%s, but got=%s", want, got)
+		exp := expect[i].InstructionString()
+		if got != exp {
+			t.Errorf("expect=%s, but got=%s", exp, got)
+		}
+	}
+}
+
+func TestCompile2(t *testing.T) {
+
+	text := "(^x.x y)"
+	expect := []Instruction{
+		Call{
+			Code: []Instruction{
+				Close{Arg: "x", Code: []Instruction{Fetch{Name: "x"}, Return{}}},
+				Fetch{Name: "y"},
+				Apply{},
+				Return{},
+			},
+		},
+	}
+
+	code := Compile(parseText(text))
+
+	for i, inst := range code {
+		got := inst.InstructionString()
+		exp := expect[i].InstructionString()
+		if got != exp {
+			t.Errorf("expect=%s, but got=%s", exp, got)
 		}
 	}
 }
