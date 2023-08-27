@@ -30,6 +30,10 @@ type Return struct {
 	//nothing
 }
 
+type Abstract struct {
+	//nothing
+}
+
 type Swap struct {
 	//nothing
 }
@@ -60,6 +64,10 @@ func (a Apply) InstructionString() string {
 
 func (r Return) InstructionString() string {
 	return "Return"
+}
+
+func (a Abstract) InstructionString() string {
+	return "Abstract"
 }
 
 func (w Swap) InstructionString() string {
