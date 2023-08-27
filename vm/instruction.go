@@ -30,6 +30,10 @@ type Return struct {
 	//nothing
 }
 
+type Swap struct {
+	//nothing
+}
+
 func (f Fetch) InstructionString() string {
 	return "Fetch " + f.Name
 }
@@ -56,6 +60,10 @@ func (a Apply) InstructionString() string {
 
 func (r Return) InstructionString() string {
 	return "Return"
+}
+
+func (w Swap) InstructionString() string {
+	return "Swap"
 }
 
 func Compile(expr ast.Expression) []Instruction {
