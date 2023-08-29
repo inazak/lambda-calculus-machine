@@ -179,7 +179,7 @@ LOOP:
 
 			} else if closure, ok := right.(Closure); ok {
 				vm.pushStack(left)
-				vm.pushStack(Symbol{ Name: closure.Arg })
+				vm.pushStack(Symbol{Name: closure.Arg})
 				vm.pushDumpWithInstructions(Apply{}, Abstract{})
 				vm.env = closure.Env
 				vm.code = closure.Code
@@ -224,18 +224,18 @@ LOOP:
 
 		case Abstract:
 			result := vm.popStack()
-			s      := vm.popStack()
-			if symbol, ok := s.(Symbol) ;  ok {
-				if closure, ok := result.(Closure) ; ok {
-					vm.pushStack(Symbol{ Name: symbol.Name })
-					vm.pushStack(Symbol{ Name: closure.Arg })
+			s := vm.popStack()
+			if symbol, ok := s.(Symbol); ok {
+				if closure, ok := result.(Closure); ok {
+					vm.pushStack(Symbol{Name: symbol.Name})
+					vm.pushStack(Symbol{Name: closure.Arg})
 					vm.pushDumpWithInstructions(Abstract{}, Abstract{})
 					vm.env = closure.Env
 					vm.code = closure.Code
 					vm.deleteEnv(closure.Arg) //for internal reduction
 
 				} else { // result is not Closure
-					vm.pushStack(Function{ Arg: symbol.Name, Body: result })
+					vm.pushStack(Function{Arg: symbol.Name, Body: result})
 				}
 			} else { // s is not Symbol
 				panic("lost symbol in abstruct instruction")
@@ -266,7 +266,7 @@ LOOP:
 		goto LOOP
 
 	case Closure:
-		vm.pushStack(Symbol{ Name: v.Arg })
+		vm.pushStack(Symbol{Name: v.Arg})
 		vm.pushDumpWithInstructions(Abstract{})
 		vm.env = v.Env
 		vm.code = v.Code
