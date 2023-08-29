@@ -11,14 +11,13 @@ import (
 func main() {
 
 	var expr ast.Expression
-	expr = ast.Application{ Left: ast.Application{ Left: VAR_MOD, Right: Number(100), }, Right: Number(13), }
+	expr = ast.Application{Left: ast.Application{Left: VAR_MOD, Right: Number(100)}, Right: Number(13)}
 	expr = expandAll(expr)
 
 	code := vm.Compile(expr)
-  machine := vm.NewVM(code)
+	machine := vm.NewVM(code)
 	result := machine.Run()
 
 	fmt.Printf("input: %s\n", expr.ExpressionString())
 	fmt.Printf("output: %s\n", result.ValueString())
 }
-
