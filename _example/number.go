@@ -4,6 +4,10 @@ import (
 	"github.com/inazak/lambda-calculus-machine/ast"
 )
 
+// church encoding
+// 0 = ^f.^x.x
+// 1 = ^f.^x.(f x)
+// 2 = ^f.^x.(f (f x))
 func Number(n int) ast.Function {
   var expr ast.Expression
 
