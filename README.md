@@ -115,7 +115,8 @@ stack:
   (empty)
 ```
 
-先頭のFetchが実行されると、スタックにSymbolがPushされる。
+先頭のFetchが実行されると、xをenvから探す。
+しかし見つからないので、スタックにSymbolがPushされる。
 
 ```
 code:
